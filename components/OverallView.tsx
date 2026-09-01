@@ -11,7 +11,11 @@ import React, { useCallback } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import OverallHabitCard from "./OverallHabitCard";
 
-export default function OverallView() {
+interface OverallViewProps {
+  onOpenPaywall?: () => void;
+}
+
+export default function OverallView({ onOpenPaywall }: OverallViewProps) {
   const router = useRouter();
 
   const { overallData, isLoading, error } = useHeatmapOverall();
@@ -45,8 +49,6 @@ export default function OverallView() {
     });
 
   const handleLongPressHabit = (habit: any) => openActions(habit);
-
-  //console.log("overallData: ", JSON.stringify(overallData, null, 2));
 
   if (isLoading)
     return (

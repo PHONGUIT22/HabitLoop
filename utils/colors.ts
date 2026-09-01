@@ -1,16 +1,16 @@
 const Colors = {
-  black: "#000000",
-  darkGray: "#292929",
-  mediumGray: "#585656",
-  lightGray: "#E0E0E0",
-  white: "#FFFFFF",
-  habitCardBackground: "#1C1C1C",
-  habitIconBackground: "#333333",
-  checkBoxBackground: "#404040",
-  cellColor: "#2F2F2F",
-  disabledCellColor: "#2c2c2c",
-  checkMarkColor: "#666666",
-  borderColor: "#3f3f46",
+  black: "#0A0A0C", // Nền tối sâu hiện đại (thay vì đen tuyền)
+  darkGray: "#18181B",
+  mediumGray: "#71717A",
+  lightGray: "#E4E4E7",
+  white: "#FAFAFA",
+  habitCardBackground: "#141419", // Nền card thói quen sang hơn
+  habitIconBackground: "#202028", // Nền icon bo tròn
+  checkBoxBackground: "#27272A", // Nền ô checkbox
+  cellColor: "#1E1E24", // Màu ô heatmap chưa tick
+  disabledCellColor: "#151518", // Màu ô heatmap bị disable
+  checkMarkColor: "#6366F1", // Màu dấu tick hoàn thành (tím neon nổi bật)
+  borderColor: "#27272A", // Đường viền mỏng tinh tế
 } as const;
 
 export default Colors;

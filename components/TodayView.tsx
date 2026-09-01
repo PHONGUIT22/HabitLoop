@@ -24,10 +24,14 @@ import {
 } from "react-native";
 
 interface TodayViewProps {
-  habits?: any[]; // Keep for backward compatibility, but we'll use hook data
+  habits?: any[];
+  onAllCompleted?: (newStreak: number) => void;
 }
 
-export default function TodayView({ habits: _habits }: TodayViewProps) {
+export default function TodayView({
+  habits: _habits,
+  onAllCompleted,
+}: TodayViewProps) {
   const router = useRouter();
   const {
     selectedHabit,
@@ -45,7 +49,7 @@ export default function TodayView({ habits: _habits }: TodayViewProps) {
   const { archiveHabit, deleteHabit } = useHabits();
   const { toggleCheck } = useToggleHabitEntry();
 
-  // Fetch habits with today's entry status - explicitly type as HabitWithEntry[]
+  // Fetch habits with today's entry status
   const {
     data: habitsWithEntries,
     isLoading,
@@ -53,18 +57,15 @@ export default function TodayView({ habits: _habits }: TodayViewProps) {
     refetch,
   } = useHabitEntriesByPeriod("today");
 
-  // Refetch when screen comes into focus (e.g., returning from edit/reorder screens)
+  // Refetch data when screen comes into focus
   useFocusEffect(
     useCallback(() => {
       refetch();
     }, [refetch])
   );
 
-  // Type assertion to ensure TypeScript knows this is HabitWithEntry[]
   const habitsData: HabitWithEntry[] =
     (habitsWithEntries as HabitWithEntry[]) || [];
-
-  //console.log("Data", JSON.stringify(habitsData, null, 2));
 
   const handleArchive = (habit: Habit) => {
     archiveHabit(habit.id);
@@ -85,19 +86,29 @@ export default function TodayView({ habits: _habits }: TodayViewProps) {
     router.push("/reorder");
   };
 
-  // Handle checkbox press (only checkbox, not the whole card)
-  const handleCheckboxPress = (habit: HabitWithEntry, e: any) => {
-    e.stopPropagation(); // Prevent card press
-    toggleCheck(habit.id, t.date, habit.entry_status); // Toggle today's entry
+  // Handle checkbox press and check if all habits are completed for celebration
+  const handleCheckboxPress = async (habit: HabitWithEntry, e: any) => {
+    e.stopPropagation();
+    
+    // Toggle entry status
+    await toggleCheck(habit.id, t.date, habit.entry_status);
+
+    // If changing from unchecked (0) to checked (1), check if all habits are completed
+    if (habit.entry_status === 0 && onAllCompleted) {
+      const otherHabitsCompleted = habitsData
+        .filter((h) => h.id !== habit.id)
+        .every((h) => h.entry_status === 1);
+
+      if (otherHabitsCompleted && habitsData.length > 0) {
+        onAllCompleted(1); // Trigger streak celebration callback
+      }
+    }
   };
 
-  // Handle card press (for navigation - to be implemented later)
   const handleCardPress = (habit: HabitWithEntry) => {
     // TODO: Navigate to habit detail screen
-    // router.push({ pathname: "/habitDetail", params: { habitId: habit.id.toString() } });
   };
 
-  // Handle long press (for action sheet) - cast to Habit since HabitWithEntry extends Habit
   const handleCardLongPress = (habit: HabitWithEntry) => {
     openActions(habit as Habit);
   };
@@ -129,12 +140,12 @@ export default function TodayView({ habits: _habits }: TodayViewProps) {
           const isChecked = item.entry_status === 1;
           const checkboxColor = isChecked
             ? item.color || "#fff"
-            : Colors.checkBoxBackground; // Gray when unchecked
-          const checkmarkColor = isChecked ? "white" : Colors.checkMarkColor; // Darker gray checkmark when unchecked
+            : Colors.checkBoxBackground;
+          const checkmarkColor = isChecked ? "white" : Colors.checkMarkColor;
 
           return (
             <View
-              className="flex-row items-center justify-between rounded-2xl  p-4 mb-4"
+              className="flex-row items-center justify-between rounded-2xl p-4 mb-4"
               style={{
                 backgroundColor: Colors.habitCardBackground,
                 borderWidth: 1,
@@ -148,7 +159,7 @@ export default function TodayView({ habits: _habits }: TodayViewProps) {
                 activeOpacity={0.7}
               >
                 <View
-                  className="bg-neutral-800 rounded-2xl p-4 mr-3"
+                  className="rounded-2xl p-4 mr-3"
                   style={{ backgroundColor: Colors.habitIconBackground }}
                 >
                   <Ionicons
@@ -160,7 +171,7 @@ export default function TodayView({ habits: _habits }: TodayViewProps) {
                 <Text className="flex-1 text-white text-lg">{item.name}</Text>
               </TouchableOpacity>
 
-              {/* Checkbox - only this is pressable for toggle */}
+              {/* Checkbox item */}
               <Pressable
                 onPress={(e) => handleCheckboxPress(item, e)}
                 className="rounded-2xl items-center justify-center"

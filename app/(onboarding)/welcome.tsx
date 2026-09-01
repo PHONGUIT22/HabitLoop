@@ -29,7 +29,7 @@ export default function WelcomeScreen() {
           <View className="bg-black  px-6 pt-10 pb-10">
             {/* Title Text */}
             <Text className="text-white text-4xl font-bold text-center mb-3 leading-snug">
-              Welcome to{"\n"}Habit tracker
+              Welcome to{"\n"}Habit Loop
             </Text>
 
             {/* Subtitle */}

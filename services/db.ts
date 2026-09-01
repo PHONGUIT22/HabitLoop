@@ -1,40 +1,36 @@
 import type { SQLiteDatabase } from "expo-sqlite";
 import { INIT_SQL } from "./migrations/001_init";
+import { MIGRATION_002_SQL } from "./migrations/002_add_streak_freeze";
 
 export async function migrateDbIfNeeded(db: SQLiteDatabase) {
-  const DATABASE_VERSION = 1;
+  const DATABASE_VERSION = 2; // Nâng version lên 2
 
-  // Get current database version
+  // Lấy version hiện tại của DB
   const result = await db.getFirstAsync<{ user_version: number }>(
     "PRAGMA user_version"
   );
 
-  // Handle null case - default to 0 if no version is set
   let currentDbVersion = result?.user_version ?? 0;
 
-  // If already at or above target version, skip migration
   if (currentDbVersion >= DATABASE_VERSION) {
     return;
   }
 
-  // Migration 001: Initial schema
+  // Bật chế độ WAL để tối ưu hiệu năng
+  await db.execAsync(`PRAGMA journal_mode = 'wal';`);
+
+  // Migration 001: Khởi tạo ban đầu
   if (currentDbVersion === 0) {
-    // Enable WAL mode for better performance
-    await db.execAsync(`PRAGMA journal_mode = 'wal';`);
-
-    // Execute the initial schema from imported SQL
     await db.execAsync(INIT_SQL);
-
-    currentDbVersion = DATABASE_VERSION;
+    currentDbVersion = 1;
   }
 
-  // Future migrations can be added here:
-  // if (currentDbVersion === 1) {
-  //   const { INIT_SQL: MIGRATION_002_SQL } = await import('./migrations/002_add_feature');
-  //   await db.execAsync(MIGRATION_002_SQL);
-  //   currentDbVersion = 2;
-  // }
+  // Migration 002: Thêm streak freeze và user_settings
+  if (currentDbVersion === 1) {
+    await db.execAsync(MIGRATION_002_SQL);
+    currentDbVersion = 2;
+  }
 
-  // Update database version
+  // Cập nhật PRAGMA user_version lên phiên bản mới nhất
   await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);
 }

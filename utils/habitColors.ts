@@ -1,12 +1,12 @@
 export const habitColors = [
-  "#FF6B6B",
-  "#FF9F1C",
-  "#FFD93D",
-  "#6BCB77",
-  "#4D96FF",
-  "#6A67CE",
-  "#C56CF0",
-  "#F78DA7",
-  "#A5A6F6",
-  "#A8A4CE",
+  "#6366F1", // Indigo tím neon
+  "#8B5CF6", // Violet
+  "#EC4899", // Pink Rose
+  "#F43F5E", // Crimson
+  "#F97316", // Amber Orange
+  "#10B981", // Emerald Green
+  "#06B6D4", // Cyan Blue
+  "#3B82F6", // Electric Blue
+  "#14B8A6", // Teal
+  "#84CC16", // Lime Green
 ];
